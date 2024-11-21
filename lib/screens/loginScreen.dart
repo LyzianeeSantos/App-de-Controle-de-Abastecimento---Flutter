@@ -9,7 +9,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('test'),
+        title: const Text('Login'),
       ),
       body: Center(
         child: ElevatedButton(

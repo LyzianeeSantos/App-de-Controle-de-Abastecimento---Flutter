@@ -1,8 +1,8 @@
-// lib/screens/vehicle_list_screen.dart
 import 'package:flutter/material.dart';
 import '../models/vehicle.dart';
 import '../widgets/vehicle_card.dart';
 import '../services/firestore_service.dart';
+import 'add_vehicle_screen.dart';
 import 'vehicle_detail_screen.dart';
 
 class VehicleListScreen extends StatelessWidget {
@@ -11,7 +11,10 @@ class VehicleListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Meus Veículos')),
+      appBar: AppBar(
+        title: const Text('Meus Veículos'),
+        automaticallyImplyLeading: true,
+      ),
       body: StreamBuilder<List<Vehicle>>(
         stream: FirestoreService().getVehicles(),
         builder: (context, snapshot) {
@@ -20,10 +23,56 @@ class VehicleListScreen extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return const Center(child: Text('Erro ao carregar veículos'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Erro ao carregar os veículos.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Recarrega a tela ao pressionar o botão
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const VehicleListScreen()),
+                      );
+                    },
+                    child: const Text('Tentar novamente'),
+                  ),
+                ],
+              ),
+            );
           }
 
           final vehicles = snapshot.data ?? [];
+          if (vehicles.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.directions_car, size: 48, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Nenhum veículo cadastrado.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AddVehicleScreen()),
+                      );
+                    },
+                    child: const Text('Adicionar Veículo'),
+                  ),
+                ],
+              ),
+            );
+          }
+
           return ListView.builder(
             itemCount: vehicles.length,
             itemBuilder: (context, index) {
@@ -45,6 +94,15 @@ class VehicleListScreen extends StatelessWidget {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddVehicleScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

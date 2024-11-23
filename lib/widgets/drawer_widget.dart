@@ -5,12 +5,39 @@ import 'package:flutter_application_1/screens/profile_screen.dart';
 import 'package:flutter_application_1/screens/vehicle_list_screen.dart';
 import 'package:flutter_application_1/screens/add_vehicle_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DrawerWidget extends StatelessWidget {
+class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
 
   @override
+  _DrawerWidgetState createState() => _DrawerWidgetState();
+}
+
+class _DrawerWidgetState extends State<DrawerWidget> {
+  String? _username;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  // Função para buscar o nome de usuário no Firestore
+  Future<void> _fetchUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      setState(() {
+        _username = doc.data()?['username'] ?? 'Usuário';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final userEmail = FirebaseAuth.instance.currentUser?.email ?? 'Email não definido';
+
     return Drawer(
       child: ListView(
         children: [
@@ -23,8 +50,13 @@ class DrawerWidget extends StatelessWidget {
                 const Icon(Icons.directions_car, size: 50, color: Colors.white),
                 const SizedBox(height: 8),
                 Text(
-                  FirebaseAuth.instance.currentUser?.email ?? 'Usuário',
-                  style: const TextStyle(color: Colors.white),
+                  _username ?? 'Carregando...',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  userEmail,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ],
             ),

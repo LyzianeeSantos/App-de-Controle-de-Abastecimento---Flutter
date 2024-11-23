@@ -1,4 +1,5 @@
 // lib/models/vehicle.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Vehicle {
   final String id;
